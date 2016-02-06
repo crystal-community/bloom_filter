@@ -6,6 +6,8 @@ Implementation of [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter) in 
 * [Usage](#usage)
   * [Basic](#basic)
   * [Creating a filter with optimal parameters](#creating-a-filter-with-optimal-parameters)
+  * [Dumping to file and loading](#dumping-to-file-and-loading)
+  * [Visualization](#visualization)
 * [Contributors](#contributors)
 
 
