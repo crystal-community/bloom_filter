@@ -1,11 +1,11 @@
-# Bloom Filter
+# Bloom Filter [![Build Status](https://travis-ci.org/greyblake/crystal-bloom_filter.svg?branch=master)](https://travis-ci.org/greyblake/crystal-bloom_filter)
 
 Implementation of [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter) in [Crystal lang](http://crystal-lang.org/).
 
 * [Installation](#installation)
 * [Usage](#usage)
   * [Basic](#basic)
-  * [Creating bloom filter with optimal parameters](#creating-bloom-filter-with-optimal-parameters)
+  * [Creating a filter with optimal parameters](#creating-a-filter-with-optimal-parameters)
 * [Contributors](#contributors)
 
 
@@ -18,7 +18,6 @@ dependencies:
   bloom_filter:
     github: greyblake/crystal-bloom_filter
 ```
-
 
 ## Usage
 
@@ -40,7 +39,7 @@ filter.has?("Toki Pona")  # => true
 filter.has?("Englsh")     # => false
 ```
 
-### Creating bloom filter with optimal parameters
+### Creating a filter with optimal parameters
 
 Based on your needs(expected number of items and desired probability of false positives),
 your can create an optimal bloom filter:
@@ -52,7 +51,7 @@ filter.bytesize # => 1017796 (993Kb)
 filter.hash_num # => 6
 ```
 
-### Dumping to file and loading
+### Dumping into a file and loading
 
 It's possible to save existing bloom filter as a binary file and then load it back.
 
@@ -66,7 +65,7 @@ loaded_filter.has?("Esperanto") # => true
 loaded_filter.has?("English")   # => false
 ```
 
-### Visualizing
+### Visualization
 
 If you want to see how your filter looks like, you can visualize it:
 
