@@ -2,28 +2,32 @@ module BloomFilter
   class Filter
     INITIAL_SEED = 13
 
-    getter :hash_count, :memory, :bitsize
+    getter :hash_num, :bitsize
 
+    # n - the number of expected elements to be inserted
+    # p - desired false positive probability
+    # m - bitsize of the filter
+    # k - number of hash functions
     def self.new_optimal(n, p)
       m = - (n * Math.log(p)) / Math.log(2)**2
       k = (m/n) * Math.log(2)
 
-      m = m.round.to_i
+      bytesize = (m / 8).ceil.to_i
       k = k.round.to_i
 
-      size = m.round / 32 + 1
-      new(m, k)
+      new(bytesize, k)
     end
 
-    def initialize(size, @hash_count)
-      @bitsize = size * 32
-      @memory = Array(UInt32).new(size, 0_u32)
+    def initialize(bytesize, @hash_num)
+      array_size = (bytesize / 4.0).ceil.to_i
+      @bitsize = array_size * 32
 
-      @seeds = [] of UInt32
+      @memory = Array(UInt32).new(array_size, 0_u32)
 
-      # Define seeds
+      # Set seeds
       random = Random.new(INITIAL_SEED)
-      @hash_count.times { @seeds << random.next_u32 }
+      @seeds = [] of UInt32
+      @hash_num.times { @seeds << random.next_u32 }
     end
 
     def add(str : String)
@@ -41,6 +45,19 @@ module BloomFilter
       true
     end
 
+    def bytesize
+      @bitsize / 8
+    end
+
+    def visualize
+      pairs = [] of String
+      four_bytes = @memory.map { |uint32| visualize_uint32(uint32) }
+      four_bytes.each_slice(4) do |pair|
+        pairs << pair.join(" ")
+      end
+      pairs.join("\n")
+    end
+
     private def set(index : UInt32)
       item_index = index / 32
       bit_index = index % 32
@@ -51,15 +68,6 @@ module BloomFilter
       item_index = index / 32
       bit_index = index % 32
       @memory[item_index] & (1 << bit_index) != 0
-    end
-
-    def visualize
-      pairs = [] of String
-      four_bytes = @memory.map { |uint32| visualize_uint32(uint32) }
-      four_bytes.each_slice(4) do |pair|
-        pairs << pair.join(" ")
-      end
-      pairs.join("\n")
     end
 
     private def visualize_uint32(num : UInt32) : String
