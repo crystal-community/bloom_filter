@@ -10,7 +10,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   bloom_filter:
-    github: greyblake/bloom_filter
+    github: greyblake/crystal-bloom_filter
 ```
 
 
