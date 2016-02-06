@@ -1,47 +1,54 @@
 require "../spec_helper"
 
-#describe BloomFilter::Filter do
-#  describe ".new_optimal" do
-#    it "creates filter with optimal parameters" do
-#      filter = BloomFilter::Filter.new_optimal(1_000_000, 0.001)
-#      filter.should be_a BloomFilter::Filter
-#    end
-#  end
+def random_str
+  SecureRandom.random_bytes(rand(20)+5).map(&.chr).join("")
+end
 
-#  describe ".new" do
-#    it "creates filter with given bytesize hash functions" do
-#      filter = BloomFilter::Filter.new(64, 3)
-#      filter.bytesize.should eq 64
-#      filter.bitsize.should eq 64*8
-#      filter.hash_num.should eq 3
-#    end
+describe BloomFilter do
+  it "creates optimal correctly" do
+    size = 10_000
+    expected_probability = 0.05
 
-#    context "when bytesize is not an even 4" do
-#      it "calculates minimal bytesize even 4, that is greater than the given one " do
-#        filter = BloomFilter::Filter.new(5, 3)
-#        filter.bytesize.should eq 8
-#        filter.bitsize.should eq 8*8
-#      end
-#    end
-#  end
+    filter = BloomFilter.new_optimal(size, expected_probability)
+    size.times { filter.insert(random_str) }
 
-#  describe "#add" do
-#    it "adds element to the filter" do
-#      filter = BloomFilter::Filter.new(100, 5)
-#      filter.add("abc")
-#    end
-#  end
+    false_positive_count = 0
+    size.times do
+      false_positive_count += 1 if filter.has?(random_str)
+    end
 
-#  describe "#has?" do
-#    context "filter has items" do
-#      it "returns true if item is present" do
-#        filter = BloomFilter::Filter.new(256, 4)
-#        filter.add("test")
+    actual_frequency = false_positive_count.to_f / size
+    (0.04..0.06).should contain(actual_frequency)
+  end
 
-#        filter.has?("test").should eq true
-#        filter.has?("Test").should eq false
-#        filter.has?("TEST").should eq false
-#      end
-#    end
-#  end
-#end
+  it "always returns true if object was inserted" do
+    size = 10_000
+    expected_probability = 0.05
+
+    filter = BloomFilter.new_optimal(size, expected_probability)
+    strs = [] of String
+    size.times do
+      strs << random_str
+      filter.insert(strs.last)
+    end
+
+    strs.each do |str|
+      filter.has?(str).should eq true
+    end
+  end
+
+  it "dumps and loads" do
+    f1 = BloomFilter.new(256, 3)
+    f1.insert("Hello")
+    f1.insert("Test")
+    f1.dump_file("/tmp/crystal_bloom_filter_test")
+
+    f2 = BloomFilter.load_file("/tmp/crystal_bloom_filter_test")
+    f2.hash_num.should eq 3
+    f2.bytesize.should eq 256
+    f2.bitsize.should eq 256*8
+    f2.has?("Hello").should eq true
+    f2.has?("Test").should eq true
+    f2.has?("None").should eq false
+  end
+end

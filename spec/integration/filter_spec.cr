@@ -9,8 +9,8 @@ describe BloomFilter do
     size = 10_000
     expected_probability = 0.05
 
-    filter = BloomFilter::Filter.new_optimal(size, expected_probability)
-    size.times { filter.add(random_str) }
+    filter = BloomFilter.new_optimal(size, expected_probability)
+    size.times { filter.insert(random_str) }
 
     false_positive_count = 0
     size.times do
@@ -21,15 +21,15 @@ describe BloomFilter do
     (0.04..0.06).should contain(actual_frequency)
   end
 
-  it "always returns true if object was insterted" do
+  it "always returns true if object was inserted" do
     size = 10_000
     expected_probability = 0.05
 
-    filter = BloomFilter::Filter.new_optimal(size, expected_probability)
+    filter = BloomFilter.new_optimal(size, expected_probability)
     strs = [] of String
     size.times do
       strs << random_str
-      filter.add(strs.last)
+      filter.insert(strs.last)
     end
 
     strs.each do |str|
@@ -37,14 +37,13 @@ describe BloomFilter do
     end
   end
 
-
   it "dumps and loads" do
-    f1 = BloomFilter::Filter.new(256, 3)
-    f1.add("Hello")
-    f1.add("Test")
+    f1 = BloomFilter.new(256, 3)
+    f1.insert("Hello")
+    f1.insert("Test")
     f1.dump_file("/tmp/crystal_bloom_filter_test")
 
-    f2 = BloomFilter::Filter.load_file("/tmp/crystal_bloom_filter_test")
+    f2 = BloomFilter.load_file("/tmp/crystal_bloom_filter_test")
     f2.hash_num.should eq 3
     f2.bytesize.should eq 256
     f2.bitsize.should eq 256*8
@@ -53,4 +52,3 @@ describe BloomFilter do
     f2.has?("None").should eq false
   end
 end
-
