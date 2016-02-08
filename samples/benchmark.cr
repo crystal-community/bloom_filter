@@ -25,7 +25,7 @@ res = Benchmark.bm do |x|
 
   x.report("has? (missing)")  do
     N.times do
-      filter.has?("Missing")
+      filter.has?("TheMissingStr")
     end
   end
 end
