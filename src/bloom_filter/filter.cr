@@ -1,7 +1,5 @@
 module BloomFilter
   class Filter
-    INITIAL_SEED = 13
-
     getter :hash_num, :bitsize, :bytesize
 
     def initialize(bytesize, hash_num)
@@ -10,8 +8,8 @@ module BloomFilter
       @hash_num = hash_num.to_u8
 
       @bitmap = Array(UInt8).new(bytesize, 0_u8)
-      @seeds = [] of UInt32
-      setup_seeds
+      @seeda = 0xdeadbeef_u32
+      @seedb = 0x71fefeed_u32
     end
 
     # I used to load filter from file (see BloomFilter.load).
@@ -29,22 +27,20 @@ module BloomFilter
       end
 
       @bitsize = bytesize * 8
-      @seeds = [] of UInt32
-      setup_seeds
+      @seeda = 0xdeadbeef_u32
+      @seedb = 0x71fefeed_u32
       self
     end
 
     def insert(str : String)
-      @seeds.each do |seed|
-        index = djb2_hash(str, seed) % @bitsize
+      each_probe(str) do |index|
         set(index)
       end
     end
 
     # Verifies, whether the filter contains given item.
     def has?(str : String) : Bool
-      @seeds.each do |seed|
-        index = djb2_hash(str, seed) % @bitsize
+      each_probe(str) do |index|
         return false unless set?(index)
       end
       true
@@ -60,12 +56,6 @@ module BloomFilter
       # TODO: is it possible write 4 byte chunks?
       @bitmap.each { |byte| io.write_byte(byte) }
       io
-    end
-
-    protected def setup_seeds
-      @seeds = [] of UInt32
-      random = Random.new(INITIAL_SEED)
-      hash_num.times { @seeds << random.next_u32 }
     end
 
     private def set(index : UInt32)
@@ -100,14 +90,34 @@ module BloomFilter
       binary.gsub("0", "░").gsub("1", "▓")
     end
 
-    # Hash function. Works fast and well.
-    # For more details see: http://www.cse.yorku.ca/~oz/hash.html
-    private def djb2_hash(str : String, seed : UInt32) : UInt32
-      hash = seed
-      str.each_byte do |byte|
-        hash = (hash << 5) + hash + byte
+    private def each_probe(str : String)
+      ha, hb = two_hash(str)
+      pos = ha % (@bitsize - 1)       # @bitsize - 1 is always odd
+      delta = 1 + hb % (@bitsize - 3) # @bitsize - 3 is also odd
+      @hash_num.times do
+        yield pos
+        pos += delta
+        pos -= @bitsize if pos >= @bitsize
       end
-      hash
+    end
+
+    # Hash function.
+    private def two_hash(str : String) : Tuple(UInt32, UInt32)
+      ha = @seeda
+      hb = @seedb
+      str.each_byte do |b|
+        ha = (hswap(ha) ^ b) * 0xb8b34b2d_u32
+        hb = (hswap(hb) ^ b) * 0x52c6a2d9_u32
+      end
+      ha = hswap(ha) * 0xb8b34b2d_u32
+      hb = hswap(hb) * 0x52c6a2d9_u32
+      ha ^= ha >> 16
+      hb ^= hb >> 16
+      {ha, hb}
+    end
+
+    private def hswap(i : UInt32)
+      i = (i << 16) | (i >> 16)
     end
   end
 end
