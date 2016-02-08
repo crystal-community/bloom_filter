@@ -1,6 +1,8 @@
 module BloomFilter
   class Filter
     getter :hash_num, :bitsize, :bytesize
+    SEEDA = 0xdeadbeef_u32
+    SEEDB = 0x71fefeed_u32
 
     def initialize(bytesize, hash_num)
       @bytesize = bytesize
@@ -8,8 +10,8 @@ module BloomFilter
       @hash_num = hash_num.to_u8
 
       @bitmap = Array(UInt8).new(bytesize, 0_u8)
-      @seeda = 0xdeadbeef_u32
-      @seedb = 0x71fefeed_u32
+      @seeda = SEEDA
+      @seedb = SEEDB
     end
 
     # I used to load filter from file (see BloomFilter.load).
@@ -27,8 +29,8 @@ module BloomFilter
       end
 
       @bitsize = bytesize * 8
-      @seeda = 0xdeadbeef_u32
-      @seedb = 0x71fefeed_u32
+      @seeda = SEEDA
+      @seedb = SEEDB
       self
     end
 
