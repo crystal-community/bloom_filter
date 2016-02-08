@@ -99,34 +99,38 @@ f4.has?("English")   # => false
 If you want to see how your filter looks like, you can visualize it:
 
 ```crystal
-filter = BloomFilter.new(16, 2)
+f1 = BloomFilter.new(16, 2)
+f1.insert("Esperanto")
+puts "f1 = (Esperanto)"
+puts f1.visualize
 
-3.times do |index|
-  puts "Number of items: #{index+1}"
-  value = "#{index} value"
-  filter.insert(value)
-  puts filter.visualize
-  puts
-end
+f2 = BloomFilter.new(16, 2)
+f2.insert("Spanish")
+puts "f2 = (Spanish)"
+puts f2.visualize
+
+f3 = f1 | f2
+puts "f3 = f1 | f2 = (Esperanto, Spanish)"
+puts f3.visualize
 ```
 
 Output:
 ```
-Number of items: 1
-░░░░░░░░ ░░░░░░░▓ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ▓░░░░░░░ ░░░░░░░░
+f1 = (Esperanto)
+░░░░░░░░ ░░░░░░█░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░
+░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░█ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░
+
+f2 = (Spanish)
 ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░
+░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░█░ ░█░░░░░░
 
-Number of items: 2
-░░░░░░░░ ░░░░░░░▓ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ▓░░░░░░░ ░░░░░░░░
-░░░░░░░░ ░░░░░░▓░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░▓
-
-Number of items: 3
-░░░░░░░░ ░░░░░▓░▓ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ▓░░░░░░░ ░░░░░░▓░
-░░░░░░░░ ░░░░░░▓░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░▓
+f3 = f1 | f2 = (Esperanto, Spanish)
+░░░░░░░░ ░░░░░░█░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░
+░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░░ ░░░░░░░█ ░░░░░░░░ ░░░░░░█░ ░█░░░░░░
 ```
-It may be useful for debug :)
-
+In this way, you can actually see which bits are set:)
 
 ## Contributors
 
 - [greyblake](https://github.com/greyblake) Potapov Sergey - creator, maintainer
+- [funny-falcon](https://github.com/funny-falcon) Sokolov Yura - better hash algorithms
