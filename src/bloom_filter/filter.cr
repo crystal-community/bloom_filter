@@ -98,6 +98,8 @@ module BloomFilter
         yield pos
         pos += delta
         pos -= @bitsize if pos >= @bitsize
+        delta += 1
+        delta = 1 if delta == @bitsize - 1
       end
     end
 
