@@ -10,9 +10,6 @@ puts "  Size: #{filter.bytesize/1024}Kb"
 puts "  Hash functions: #{filter.hash_num}"
 puts
 
-puts "Generating strings..."
-puts
-
 res = Benchmark.bm do |x|
   x.report("add")  do
     N.times do
