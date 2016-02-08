@@ -17,7 +17,7 @@ module BloomFilter
     end
 
     # I used to load filter from file (see BloomFilter.load).
-    protected def initialize_from_io(io : IO)
+    def initialize(io : IO)
       hash_num = io.read_byte
       @hash_num = hash_num as UInt8
 
@@ -31,7 +31,6 @@ module BloomFilter
       end
 
       @bitsize = bytesize * 8
-      self
     end
 
     def insert(str : String)
