@@ -28,7 +28,5 @@ module BloomFilter
 
   def self.load(io : IO) : Filter
     Filter.new(io)
-    #filter = Filter.allocate
-    #filter.initialize_from_io(io)
   end
 end

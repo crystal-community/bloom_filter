@@ -3,7 +3,7 @@ require "../src/bloom_filter"
 
 N = 100_000_000
 
-filter = BloomFilter.new_optimal(N, 0.01)
+filter = BloomFilter.new_optimal(N, 0.000001)
 
 puts "Bloom filter:"
 puts "  Size: #{filter.bytesize/1024}Kb"

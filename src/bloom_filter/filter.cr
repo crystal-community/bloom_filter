@@ -1,6 +1,6 @@
 module BloomFilter
   class Filter
-    getter :hash_num, :bitsize, :bytesize
+    getter :hash_num, :bitsize, :bytesize, :bitmap
 
     SEED_A = 0xdeadbeef_u32
     SEED_B = 0x71fefeed_u32
@@ -8,12 +8,9 @@ module BloomFilter
     SALT_A = 0xb8b34b2d_u32
     SALT_B = 0x52c6a2d9_u32
 
-    def initialize(bytesize, hash_num)
-      @bytesize = bytesize
+    def initialize(@bytesize, hash_num, @bitmap = Array(UInt8).new(bytesize, 0_u8))
       @bitsize =  bytesize * 8
       @hash_num = hash_num.to_u8
-
-      @bitmap = Array(UInt8).new(bytesize, 0_u8)
     end
 
     # I used to load filter from file (see BloomFilter.load).
@@ -59,6 +56,32 @@ module BloomFilter
       io
     end
 
+    def == (another : Filter)
+      @bytesize == another.bytesize && @hash_num == another.hash_num && @bitmap == another.bitmap
+    end
+
+    # Get a union of two filters.
+    def |(another : Filter) : Filter
+      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == @bytesize
+      raise(ArgumentError.new("Cannot unite filters with different number of hash functions")) unless another.hash_num == @hash_num
+
+      union_bitmap = Array(UInt8).new(bytesize.to_i) do |index|
+        @bitmap[index] | another.bitmap[index]
+      end
+      Filter.new(@bytesize, @hash_num, union_bitmap)
+    end
+
+    # Get intersection of two filters.
+    def &(another : Filter) : Filter
+      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == @bytesize
+      raise(ArgumentError.new("Cannot unite filters with different number of hash functions")) unless another.hash_num == @hash_num
+
+      intersection_bitmap = Array(UInt8).new(bytesize.to_i) do |index|
+        @bitmap[index] & another.bitmap[index]
+      end
+      Filter.new(@bytesize, @hash_num, intersection_bitmap)
+    end
+
     @[AlwaysInline]
     private def set(index : UInt32)
       item_index = index / 8
@@ -90,7 +113,7 @@ module BloomFilter
       while binary.size < 8
         binary = "0" + binary
       end
-      binary.gsub("0", "░").gsub("1", "▓")
+      binary.gsub("0", "░").gsub("1", "█")
     end
 
     @[AlwaysInline]

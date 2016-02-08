@@ -7,6 +7,7 @@ Implementation of [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter) in 
   * [Basic](#basic)
   * [Creating a filter with optimal parameters](#creating-a-filter-with-optimal-parameters)
   * [Dumping to file and loading](#dumping-into-a-file-and-loading)
+  * [Union and intersection](#union-and-intersection)
   * [Visualization](#visualization)
 * [Contributors](#contributors)
 
@@ -65,6 +66,32 @@ filter.dump_file("/tmp/bloom_languages")
 loaded_filter = BloomFilter.load_file("/tmp/bloom_languages")
 loaded_filter.has?("Esperanto") # => true
 loaded_filter.has?("English")   # => false
+```
+
+### Union and intersection
+Having two filters of the same size and number of hash functions, it's possible
+to perform union and intersection operations:
+
+```crystal
+f1 = BloomFilter.new(32, 3)
+f1.insert("Esperanto")
+f1.insert("Spanish")
+
+f2 = BloomFilter.new(32, 3)
+f2.insert("Esperanto")
+f2.insert("English")
+
+# Union
+f3 = f1 | f2
+f3.has?("Esperanto") # => true
+f3.has?("Spanish")   # => true
+f3.has?("English")   # => true
+
+# Intersection
+f4 = f1 & f2
+f4.has?("Esperanto") # => true
+f4.has?("Spanish")   # => false
+f4.has?("English")   # => false
 ```
 
 ### Visualization

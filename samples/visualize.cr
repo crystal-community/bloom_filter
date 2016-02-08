@@ -1,10 +1,18 @@
 require "../src/bloom_filter"
 
-filter = BloomFilter.new(16, 2)
+f1 = BloomFilter.new(16, 2)
+f1.insert("Esperanto")
+puts "f1 = (Esperanto)"
+puts f1.visualize
+puts
 
-3.times do |index|
-  puts "Number of items: #{index+1}"
-  filter.insert(index.to_s)
-  puts filter.visualize
-  puts
-end
+f2 = BloomFilter.new(16, 2)
+f2.insert("Spanish")
+puts "f2 = (Spanish)"
+puts f2.visualize
+puts
+
+f3 = f1 | f2
+puts "f3 = f1 | f2 = (Esperanto, Spanish)"
+puts f3.visualize
+puts
