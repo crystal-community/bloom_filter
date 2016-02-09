@@ -9,6 +9,7 @@ Implementation of [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter) in 
   * [Dumping to file and loading](#dumping-into-a-file-and-loading)
   * [Union and intersection](#union-and-intersection)
   * [Visualization](#visualization)
+* [Benchmark](#benchmark)
 * [Contributors](#contributors)
 
 
@@ -150,7 +151,6 @@ insert           0.004227   0.000000   0.004227 (  2.769349)
 has? (present)   0.007980   0.000000   0.007980 (  5.223778)
 has? (missing)   0.004318   0.000000   0.004318 (  2.829521)
 ```
-
 
 ## Contributors
 
