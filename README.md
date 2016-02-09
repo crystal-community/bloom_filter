@@ -130,6 +130,28 @@ f3 = f1 | f2 = (Esperanto, Spanish)
 ```
 In this way, you can actually see which bits are set:)
 
+## Benchmark
+Performance of Bloom filter depends on the following parameters:
+* Size of the filter
+* Number of hash functions
+* Length of the input string
+
+To run benchmark from `./samples/benchmark.cr`, simply run make task:
+```
+$ make benchmark
+
+Number of items: 100000000
+Filter size: 117005Kb
+Hash functions: 7
+String size: 13
+
+                     user     system      total        real
+insert           0.004227   0.000000   0.004227 (  2.769349)
+has? (present)   0.007980   0.000000   0.007980 (  5.223778)
+has? (missing)   0.004318   0.000000   0.004318 (  2.829521)
+```
+
+
 ## Contributors
 
 - [greyblake](https://github.com/greyblake) Potapov Sergey - creator, maintainer
