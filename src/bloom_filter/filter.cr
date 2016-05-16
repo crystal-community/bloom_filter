@@ -1,5 +1,7 @@
 module BloomFilter
   class Filter
+    @bitsize : UInt32
+
     getter :hash_num, :bitsize, :bytesize, :bitmap
 
     SEED_A = 0xdeadbeef_u32

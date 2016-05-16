@@ -12,14 +12,14 @@ module BloomFilter
     m = - (n * Math.log(p)) / Math.log(2)**2
     k = (m/n) * Math.log(2)
 
-    bytesize = (m / 8).ceil.to_i
+    bytesize = (m / 8).ceil.to_u32
     k = k.round.to_i
 
     Filter.new(bytesize, k)
   end
 
   def self.new(bytesize, hash_num) : Filter
-    Filter.new(bytesize, hash_num)
+    Filter.new(bytesize.to_u32, hash_num.to_u32)
   end
 
   def self.load_file(file_path) : Filter
