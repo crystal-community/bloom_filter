@@ -1,4 +1,4 @@
-# Bloom Filter [![Build Status](https://travis-ci.org/greyblake/crystal-bloom_filter.svg?branch=master)](https://travis-ci.org/greyblake/crystal-bloom_filter)
+# Bloom Filter [![Build Status](https://travis-ci.org/crystalium/bloom_filter.svg?branch=master)](https://travis-ci.org/crystalium/bloom_filter)
 
 Implementation of [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter) in [Crystal lang](http://crystal-lang.org/).
 
@@ -20,7 +20,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   bloom_filter:
-    github: greyblake/crystal-bloom_filter
+    github: crystaliu/bloom_filter
 ```
 
 ## Usage
