@@ -20,7 +20,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   bloom_filter:
-    github: crystaliu/bloom_filter
+    github: crystal-community/bloom_filter
 ```
 
 ## Usage
