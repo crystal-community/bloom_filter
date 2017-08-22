@@ -1,7 +1,7 @@
 require "benchmark"
 require "../src/bloom_filter"
 
-N = 100_000_000
+N      = 100_000_000
 STRING = "TheStringHere"
 
 filter = BloomFilter.new_optimal(N, 0.01)
@@ -14,19 +14,19 @@ puts "String size: #{STRING.size}"
 puts
 
 res = Benchmark.bm do |x|
-  x.report("insert")  do
+  x.report("insert") do
     N.times do
       filter.insert(STRING)
     end
   end
 
-  x.report("has? (present)")  do
+  x.report("has? (present)") do
     N.times do
       filter.has?(STRING)
     end
   end
 
-  x.report("has? (missing)")  do
+  x.report("has? (missing)") do
     (N / 5).times do
       # different strings of the same size (13 chars)
       filter.has?("TheMissingStr")
