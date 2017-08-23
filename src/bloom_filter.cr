@@ -9,7 +9,7 @@ module BloomFilter
   # m - bitsize of the filter
   # k - number of hash functions
   def self.new_optimal(n, p) : Filter
-    m = - (n * Math.log(p)) / Math.log(2)**2
+    m = -(n * Math.log(p)) / Math.log(2)**2
     k = (m/n) * Math.log(2)
 
     bytesize = (m / 8).ceil.to_u32

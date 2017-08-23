@@ -11,19 +11,17 @@ module BloomFilter
     MULT_B = 0x52c6a2d9_u32
 
     def initialize(@bytesize, hash_num, @bitmap = Array(UInt8).new(bytesize, 0_u8))
-      @bitsize =  bytesize * 8
+      @bitsize = bytesize * 8
       @hash_num = hash_num.to_u8
     end
 
     # I used to load filter from file (see BloomFilter.load).
     def initialize(io : IO)
-      hash_num = io.read_byte
-      @hash_num = hash_num as UInt8
-
-      @bitmap = Array(UInt8).new
+      @hash_num = io.read_byte.as UInt8
 
       # TODO: Is it possible to read 4 byte chunks?
       @bytesize = 0_u32
+      @bitmap = Array(UInt8).new
       while byte = io.read_byte
         @bitmap << byte.to_u8
         @bytesize += 1
@@ -58,7 +56,7 @@ module BloomFilter
       io
     end
 
-    def == (another : Filter)
+    def ==(another : Filter)
       @bytesize == another.bytesize && @hash_num == another.hash_num && @bitmap == another.bitmap
     end
 
@@ -140,13 +138,13 @@ module BloomFilter
       u = str.to_unsafe
       (str.bytesize / 4).times do
         v = 0_u32
-        4.times{|i| v |= u[i].to_u32 << (i*8) }
+        4.times { |i| v |= u[i].to_u32 << (i*8) }
         ha = hswap(ha ^ v) * MULT_A
         hb = (hswap(hb) ^ v) * MULT_B
         u += 4
       end
       v = 0_u32
-      (str.bytesize & 3).times{|i| v |= u[i].to_u32 << (i*8)}
+      (str.bytesize & 3).times { |i| v |= u[i].to_u32 << (i*8) }
       # use simple finalization relying on odd module (bitsize-1 and bitsize-3)
       ha ^= v + str.bytesize
       hb ^= v

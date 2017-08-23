@@ -19,4 +19,3 @@ f4 = f1 & f2
 f4.has?("Esperanto") # => true
 f4.has?("Spanish")   # => false
 f4.has?("English")   # => false
-

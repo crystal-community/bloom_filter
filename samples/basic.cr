@@ -7,6 +7,6 @@ filter.insert("Esperanto")
 filter.insert("Toki Pona")
 
 # Check elements presence
-filter.has?("Esperanto")  # => true
-filter.has?("Toki Pona")  # => true
-filter.has?("Englsh")     # => false
+filter.has?("Esperanto") # => true
+filter.has?("Toki Pona") # => true
+filter.has?("Englsh")    # => false
