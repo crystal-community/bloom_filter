@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 def random_str
-  SecureRandom.random_bytes(rand(20) + 5).map(&.chr).join("")
+  Random::Secure.random_bytes(rand(20) + 5).map(&.chr).join("")
 end
 
 describe BloomFilter do
