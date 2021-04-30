@@ -2,7 +2,13 @@ module BloomFilter
   class Filter
     @bitsize : UInt32
 
-    getter :hash_num, :bitsize, :bytesize, :bitmap
+    getter hash_num : UInt8
+    getter bitsize : UInt32
+    getter bitmap : Bytes
+
+    def bytesize
+      @bitmap.size
+    end
 
     SEED_A = 0xdeadbeef_u32
     SEED_B = 0x71fefeed_u32
@@ -10,8 +16,8 @@ module BloomFilter
     MULT_A = 0xb8b34b2d_u32
     MULT_B = 0x52c6a2d9_u32
 
-    def initialize(@bytesize, hash_num, @bitmap = Array(UInt8).new(bytesize, 0_u8))
-      @bitsize = bytesize * 8
+    def initialize(bytesize, hash_num, @bitmap = Bytes.new(bytesize.to_i32, 0_u8))
+      @bitsize = (bytesize * 8).to_u32
       @hash_num = hash_num.to_u8
     end
 
@@ -20,14 +26,11 @@ module BloomFilter
       @hash_num = io.read_byte.as UInt8
 
       # TODO: Is it possible to read 4 byte chunks?
-      @bytesize = 0_u32
-      @bitmap = Array(UInt8).new
-      while byte = io.read_byte
-        @bitmap << byte.to_u8
-        @bytesize += 1
-      end
+      size = IO::ByteFormat::BigEndian.decode(Int32, io)
+      @bitmap = Bytes.new(size)
+      io.read_fully(@bitmap).to_u32
 
-      @bitsize = bytesize * 8
+      @bitsize = (size * 8).to_u32
     end
 
     def insert(str : String)
@@ -51,47 +54,48 @@ module BloomFilter
 
     def dump(io : IO)
       io.write_byte(@hash_num)
+      IO::ByteFormat::BigEndian.encode(@bitmap.size, io)
       # TODO: is it possible write 4 byte chunks?
       @bitmap.each { |byte| io.write_byte(byte) }
       io
     end
 
     def ==(another : Filter)
-      @bytesize == another.bytesize && @hash_num == another.hash_num && @bitmap == another.bitmap
+      self.bytesize == another.bytesize && @hash_num == another.hash_num && @bitmap == another.bitmap
     end
 
     # Get a union of two filters.
     def |(another : Filter) : Filter
-      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == @bytesize
+      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == self.bytesize
       raise(ArgumentError.new("Cannot unite filters with different number of hash functions")) unless another.hash_num == @hash_num
 
-      union_bitmap = Array(UInt8).new(bytesize.to_i) do |index|
+      union_bitmap = Bytes.new(bytesize) do |index|
         @bitmap[index] | another.bitmap[index]
       end
-      Filter.new(@bytesize, @hash_num, union_bitmap)
+      Filter.new(self.bytesize, @hash_num, union_bitmap)
     end
 
     # Get intersection of two filters.
     def &(another : Filter) : Filter
-      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == @bytesize
+      raise(ArgumentError.new("Cannot unite filters of different size")) unless another.bytesize == self.bytesize
       raise(ArgumentError.new("Cannot unite filters with different number of hash functions")) unless another.hash_num == @hash_num
 
-      intersection_bitmap = Array(UInt8).new(bytesize.to_i) do |index|
+      intersection_bitmap = Bytes.new(bytesize) do |index|
         @bitmap[index] & another.bitmap[index]
       end
-      Filter.new(@bytesize, @hash_num, intersection_bitmap)
+      Filter.new(self.bytesize, @hash_num, intersection_bitmap)
     end
 
     @[AlwaysInline]
     private def set(index : UInt32)
-      item_index = index / 8
+      item_index = index // 8
       bit_index = index % 8
       @bitmap[item_index] = @bitmap[item_index] | (1 << bit_index)
     end
 
     @[AlwaysInline]
     private def set?(index : UInt32) : Bool
-      item_index = index / 8
+      item_index = index // 8
       bit_index = index % 8
       @bitmap[item_index] & (1 << bit_index) != 0
     end
@@ -136,11 +140,11 @@ module BloomFilter
       ha = SEED_A
       hb = SEED_B
       u = str.to_unsafe
-      (str.bytesize / 4).times do
+      (str.bytesize // 4).times do
         v = 0_u32
         4.times { |i| v |= u[i].to_u32 << (i*8) }
-        ha = hswap(ha ^ v) * MULT_A
-        hb = (hswap(hb) ^ v) * MULT_B
+        ha = hswap(ha ^ v) &* MULT_A
+        hb = (hswap(hb) ^ v) &* MULT_B
         u += 4
       end
       v = 0_u32
