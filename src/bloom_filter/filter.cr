@@ -4,8 +4,11 @@ module BloomFilter
 
     getter hash_num : UInt8
     getter bitsize : UInt32
-    getter bitmap : Array(UInt8)
-    getter bytesize : UInt32
+    getter bitmap : Bytes
+
+    def bytesize
+      @bitmap.size
+    end
 
     SEED_A = 0xdeadbeef_u32
     SEED_B = 0x71fefeed_u32
@@ -13,7 +16,7 @@ module BloomFilter
     MULT_A = 0xb8b34b2d_u32
     MULT_B = 0x52c6a2d9_u32
 
-    def initialize(@bytesize, hash_num, @bitmap = Array(UInt8).new(bytesize.to_i32, 0_u8))
+    def initialize(bytesize, hash_num, @bitmap = Bytes.new(bytesize.to_i32, 0_u8))
       @bitsize = (bytesize * 8).to_u32
       @hash_num = hash_num.to_u8
     end
@@ -23,12 +26,9 @@ module BloomFilter
       @hash_num = io.read_byte.as UInt8
 
       # TODO: Is it possible to read 4 byte chunks?
-      @bytesize = 0_u32
-      @bitmap = Array(UInt8).new
-      while byte = io.read_byte
-        @bitmap << byte.to_u8
-        @bytesize += 1
-      end
+      size = IO::ByteFormat::BigEndian.decode(Int32, io)
+      @bitmap = Bytes.new(size)
+      io.read_fully(@bitmap).to_u32
 
       @bitsize = @bytesize.to_u32 * 8
     end
@@ -54,6 +54,7 @@ module BloomFilter
 
     def dump(io : IO)
       io.write_byte(@hash_num)
+      IO::ByteFormat::BigEndian.encode(@bitmap.size, io)
       # TODO: is it possible write 4 byte chunks?
       @bitmap.each { |byte| io.write_byte(byte) }
       io
