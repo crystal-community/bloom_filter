@@ -1,6 +1,8 @@
 name: bloom_filter
 version: 0.1.0
 
+crystal: 1.0.0
+
 authors:
   - Potapov Sergey <blake131313@gmail.com>
 
